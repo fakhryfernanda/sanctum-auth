@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Psr\Log\LogLevel;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Auth\AuthenticationException;
 
 class Handler extends ExceptionHandler
 {
@@ -45,6 +47,17 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // kalau tokennya salah
+        $this->renderable(function (AuthenticationException $e, $request) {
+            if ($request->is("api/*")) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "unauthorized",
+                    "data" => null
+                ]);
+            }
         });
     }
 }
